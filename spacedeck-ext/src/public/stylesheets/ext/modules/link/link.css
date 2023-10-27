@@ -1,0 +1,18 @@
+.link-wrapper {
+    position: absolute;
+    bottom: -4px !important;
+    top: auto !important;
+    width: 40px !important;
+    height: 40px !important;
+    right: -4px !important;
+    overflow: hidden !important;
+}
+
+.link-wrapper:after {
+    content: "🔥";
+}
+
+.link {
+    font-size: 0px !important;
+    background-image: url("link.png");
+}

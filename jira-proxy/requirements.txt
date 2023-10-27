@@ -1,0 +1,5 @@
+urllib3==2.0.5
+flask==3.0.0
+Flask-Caching
+requests
+jira
