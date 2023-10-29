@@ -4,14 +4,15 @@ import json
 
 class JiraContext:
 
-    def __init__(self, target_host, username, token):
+    def __init__(self, target_host, username, token, options):
         self.target_host = target_host
         self.username = username
         self.token = token
+        self.options = options
         self.jira_client = None
 
     def __enter__(self):
-        self.jira_client = JIRA(server=self.target_host, options={"verify": True}, basic_auth=(self.username, self.token), validate=False)
+        self.jira_client = JIRA(server=self.target_host, options=self.options, basic_auth=(self.username, self.token), validate=False)
         return self.jira_client
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -35,6 +36,8 @@ class JiraConfig:
         target_host = config['JiraEndpoint']
         username = config['JiraUsername']
         token = config['JiraToken']
-        return JiraContext(target_host, username, token)
+        options = config['options']
+
+        return JiraContext(target_host, username, token, options)
 
 
