@@ -9,7 +9,7 @@ jira_config = JiraConfig()
 
 
 @init_endpoint
-@inject_environment({ "JIRA_ENDPOINT_CONFIGFILE" : lookup_file("../config/endpoint.json") })
+@inject_environment({ "JIRA_ENDPOINT_CONFIGFILE" : lookup_file("../../../config/jira-proxy.json") })
 def init(jira_endpoint_configfile: str):
     # Umgebungsvariable -> /config/endpoint.json
     # Konfigurationsklasse mit Konfiguration befüllen
@@ -31,6 +31,7 @@ def get_test(issue_id):
     if not endpoint_id:
         raise Exception("Missing Parameter 'endpoint_id'")
     config = jira_config.get_endpoint_config(endpoint_id)
+    config["JiraToken"] = "***"
 
     return { "test": issue_id, "config": config }
 
