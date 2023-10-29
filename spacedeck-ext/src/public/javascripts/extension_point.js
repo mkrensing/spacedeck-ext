@@ -192,11 +192,22 @@ spacedeckExtensionPoint.onSpaceLoaded(function() {
     var allTextCells = $('.artifact .text-cell .text-column').not('.text-editing').find('p');
     $(allTextCells).each(function(index, item) {
         var text = $(item).text();
+        if(text.startsWith("[Config:")) {
+            var scriptNameMatch = text.match(/\[Config:(.*?)\]/);
+            var scriptName = "config/" + scriptNameMatch[1];
+            spacedeckExtensionPoint.load(scriptName, function() {});
+        }   
+    });
+
+    $(allTextCells).each(function(index, item) {
+        var text = $(item).text();
         if(text.startsWith("[Script:")) {
             var scriptNameMatch = text.match(/\[Script:(.*?)\]/);
             var scriptName = scriptNameMatch[1];
             spacedeckExtensionPoint.load(scriptName, function() {});
         }
+
+     
     });
 });
 

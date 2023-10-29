@@ -1,7 +1,6 @@
 function init()  {
 
     let teamboard = constructSpacedeckBoard("simple");
-    teamboard.requires("simple_config.js");
     teamboard.requires("databinding.js");
     teamboard.loadStylesheets("taskboard.css");
 
