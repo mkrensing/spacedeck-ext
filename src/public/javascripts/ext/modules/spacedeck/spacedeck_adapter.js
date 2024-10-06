@@ -188,7 +188,7 @@ class SpacedeckAdapter {
 
     findArtifactByText(text) {
         return this.findFirstMatchingArtifact(function(artifact) {
-            return $(artifact.description).text() == text;
+            return getArtifactiDescription(artifact) == text;
         })
     }
 
@@ -515,7 +515,7 @@ class ProxyCreator {
 class ArtifactTemplate {
 
     constructor(templateArtifact) {
-        this.templateText = $(templateArtifact.description).text();
+        this.templateText = getArtifactiDescription(templateArtifact);
         this.templateArtifact = templateArtifact;
     }
 
@@ -613,4 +613,8 @@ function batch(jquerySelector, callback) {
     });
 
     return changed;
+}
+
+function getArtifactiDescription(artifact) {
+    return $("<p>" + artifact.description + "</p>").text();
 }

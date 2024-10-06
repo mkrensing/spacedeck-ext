@@ -8,51 +8,87 @@ spacedeck.requires("view/templating.js");
 spacedeck.requires("view/mustache.js");
 spacedeck.requires("util/config_parser.js");
 spacedeck.loadStylesheets("spacedeck.css");
-
+ 
 console.log("in leadtime module")
 leadtimes.ready(function() {
-
-    let config = constructConfigParser({}).parse();        
+ 
+    let config = constructConfigParser({}).parse();       
     console.log("Leadtimes loaded", config);
     let spacedeckAdapter = constructSpacedeckAdapter();
-
-
+ 
+ 
     let templateLoader = constructTemplateLoader("boards/simple/templates/");
     templateLoader.load(["issue_marker.html" ], function(issue_marker) {
-        
-        let artifactDataBinding = constructJiraArtifactDataBinding(issue_marker);
-        
+       
+        let artifactDataBinding = constructJiraArtifactDataBinding(issue_marker, null, config);
+       
         let jiraKeyRegEx = new RegExp(config.jiraRegex);
         function findJiraArtifacts(artifact) {
-            let description=$(artifact.description).text();
-            return jiraKeyRegEx.test(description)
+            return jiraKeyRegEx.test(getArtifactDescription(artifact))
         }
-
+ 
         function extractJiraKey(artifact) {
-            let description=$(artifact.description).text();
-            return (description.match(jiraKeyRegEx) || [""])[1]
+            return (getArtifactDescription(artifact).match(jiraKeyRegEx) || [""])[1]
         }
-    
-        let artifacts = spacedeckAdapter.findArtifacts(artifact => findJiraArtifacts(artifact));
-        let keys = artifacts.map(artifact => extractJiraKey(artifact));
-        
-        let client = constructRestClient();
-        client.getJson(config.jiraUrl, { "keys": keys.join(",")}, { "x-target-host": config.jiraServer}).then(result => {
-
+ 
+        function extractDayInStatus(result, key) {
+ 
+            let daysInStatus = parseInt(result.leadtimes.resolved[key])
+            if(isNaN(daysInStatus)) {
+                daysInStatus = parseInt(result.leadtimes.unresolved[key])
+            }
+            if(isNaN(daysInStatus)) {
+                return 0;
+            }
+ 
+            if(daysInStatus == -1) {
+                daysInStatus = "-"
+            } else {
+                daysInStatus = Math.max(1, daysInStatus);
+            }
+ 
+            return daysInStatus;
+        }
+   
+        function updateArtifacts(artifacts, result) {
             artifacts.forEach(artifact => {
                 let key = extractJiraKey(artifact);
-                let daysInStatus = result.leadtimes.resolved[key] || result.leadtimes.unresolved[key];
-                if(daysInStatus == -1) {
-                    daysInStatus = "-"
-                }
-                artifact.tags = { jira: { key: key, daysInStatus: daysInStatus } };
+                let daysInStatus = extractDayInStatus(result, key);
+                console.log("key", key, daysInStatus);
+ 
+               artifact.tags = { jira: { key: key, daysInStatus: daysInStatus } };
                 artifactDataBinding.update(artifact);
-            });            
-
+            });  
+        }
+ 
+        let artifacts = spacedeckAdapter.findArtifacts(artifact => findJiraArtifacts(artifact));
+        let keys = artifacts.map(artifact => extractJiraKey(artifact)).sort((a,b) => a.localeCompare(b));
+ 
+        let client = constructRestClient();
+        client.getJson(config.jiraUrl, { "keys": keys.join(","), "startState": config.jiraStartState}, { "x-target-host": config.jiraServer}).then(result => {
+ 
+            updateArtifacts(artifacts, result);
         });
-
-
+ 
+        let updateButton = spacedeckAdapter.findArtifactByText(config.jiraUpdateButton);
+        if(updateButton) {
+            let updateButtonDiv = spacedeckAdapter.getArtifactDiv(updateButton);
+            $(updateButtonDiv).click(function() {
+                spacedeckAdapter.loadingStart();
+                let keys = artifacts.map(artifact => extractJiraKey(artifact)).sort((a,b) => a.localeCompare(b));
+                client.getJson(config.jiraUrl, { "keys": keys.join(","), "useCache": "false", "startState": config.jiraStartState },  { "x-target-host": config.jiraServer}).then(result => {
+                    spacedeckAdapter.loadingStop();
+                    let artifacts = spacedeckAdapter.findArtifacts(artifact => findJiraArtifacts(artifact));
+                    updateArtifacts(artifacts, result);
+ 
+                }).catch(error => {
+                    spacedeckAdapter.loadingStop();
+                    throw error;
+                });
+            });
+        }
+ 
     })
-
-
+  
 });
+ 
