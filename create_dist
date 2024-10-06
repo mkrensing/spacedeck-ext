@@ -1,0 +1,3 @@
+#!/bin/bash
+mkdir -p dist
+tar -pczf ./dist/spacedeck-ext.tar.gz --exclude "dist" --exclude "create_dist" ./*
