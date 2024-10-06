@@ -104,11 +104,13 @@ class JiraArtifactDataBinding {
         let _this=this;
         let issueMarkerBinding = new IssueMarkerBinding(this.issueMarker, artifact);
         
-        issueMarkerBinding.onClick(function(artifact) {
-            let issueDetailBinding = new IssueDetailBinding(_this.issueDetail, artifact);
-            issueDetailBinding.update();
-            issueDetailBinding.show();
-        });
+        if(this.issueDetail) {
+            issueMarkerBinding.onClick(function(artifact) {
+                let issueDetailBinding = new IssueDetailBinding(_this.issueDetail, artifact);
+                issueDetailBinding.update();
+                issueDetailBinding.show();
+            });
+        }
         
         issueMarkerBinding.update();
 

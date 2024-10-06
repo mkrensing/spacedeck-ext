@@ -3,7 +3,6 @@ class ConfigParser {
     constructor(defaultConfig) {
 
         this.defaultConfig = defaultConfig || {};
-        console.log("ConfigParser", this.defaultConfig);
         this.boardConfigDescriptionPrefix = "CONFIG:"
     }
 
@@ -35,7 +34,6 @@ class ConfigParser {
         let configByUrl = this.extractConfigFromUrl();
 
         let mergedObjects = deepMergeObjects([ this.defaultConfig, configByBoard, configByUrl ]);
-        console.log("mergedObjects", mergedObjects);
         return mergedObjects;
 
     }

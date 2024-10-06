@@ -29,7 +29,8 @@ function proxyRequest(req, res) {
   // Parse die URL, um den Ziel-Host zu extrahieren
   const parsedUrl = url.parse(req.url, true);
   const targetHost = req.headers['x-target-host'] || parsedUrl.query.host;
-
+  console.log("proxy headers ", req.headers);
+  console.log("proxy targetHost ", targetHost);
 
   if (!targetHost) {
       res.writeHead(400, { 'Content-Type': 'text/plain' });
