@@ -1,0 +1,39 @@
+<div class="issue_popup-content" >
+    <div class="menu" >
+        <div id='close_button' ></div>
+    </div>
+    <div class="content left" >
+        <table>
+            <tr>
+                <td class="header" >ID</td>
+                <td><a href="{{jira.browseUrl}}" target="_jira_details" >{{jira.key}}</a></td>
+            </tr>
+            <tr>
+                <td class="header" >Bezeichnung</td>
+                <td>{{jira.fields.summary}}</td>
+            </tr>
+            {{#jira.fields.labels.length}}
+            <tr>
+                <td class="header" >Labels</td>
+                <td>{{jira.fields.labels}}</td>
+            </tr>
+            {{/jira.fields.labels.length}}
+        </table>
+    </div>
+    <div class="content right" >
+        <table>
+            <tr>
+                <td class="header">Status</td>
+                <td>{{jira.fields.status.name}} ({{jira.daysInStatus}} Tage)</td>
+            </tr>
+            <tr>
+                <td class="header">Bearbeiter</td>
+                <td>{{jira.fields.assignee.displayName}}</td>
+            </tr>
+            <tr>
+                <td class="header">Erstellt</td>
+                <td>{{#converter.isoDate}}{{jira.fields.created}}{{/converter.isoDate}} ({{jira.daysTillCreated}} Tage)</td>
+            </tr>
+        </table>
+    </div>
+</div>
