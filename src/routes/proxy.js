@@ -29,8 +29,6 @@ function proxyRequest(req, res) {
   // Parse die URL, um den Ziel-Host zu extrahieren
   const parsedUrl = url.parse(req.url, true);
   const targetHost = req.headers['x-target-host'] || parsedUrl.query.host;
-  console.log("proxy headers ", req.headers);
-  console.log("proxy targetHost ", targetHost);
 
   if (!targetHost) {
       res.writeHead(400, { 'Content-Type': 'text/plain' });
@@ -44,11 +42,11 @@ function proxyRequest(req, res) {
   // Erstelle die Optionen für den Weiterleitungs-Request
   const targetUrl = targetHost + path;
 
-  console.log("proxy to ", targetUrl);
-
   const options = url.parse(targetUrl);
   options.method = req.method;
-  options.headers = req.headers;
+  options.headers = { ...req.headers };
+  delete options.headers['x-target-host'];
+  options.headers['Host'] = targetHost.replace("http://", "").replace("https://", "")
 
   // Entscheide, ob HTTP oder HTTPS verwendet werden soll
   const protocol = options.protocol === 'https:' ? https : http;
@@ -57,6 +55,7 @@ function proxyRequest(req, res) {
       options.rejectUnauthorized = false; // Dies deaktiviert die Zertifikatsprüfung
   }
 
+  console.log("[PROXY]", options);
 
   // Den Body der POST-Anfrage sammeln, falls vorhanden
   let body = '';

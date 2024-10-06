@@ -16,6 +16,7 @@ leadtimes.ready(function() {
     console.log("Leadtimes loaded", config);
     let spacedeckAdapter = constructSpacedeckAdapter();
 
+
     let templateLoader = constructTemplateLoader("boards/simple/templates/");
     templateLoader.load(["issue_marker.html" ], function(issue_marker) {
         
