@@ -265,14 +265,8 @@ class SpacedeckAdapter {
     }; 
 
     findArtifacts(callback) {
-        let result=[];
-        for(let index in window.spacedeck.active_space_artifacts) {
-            let artifact = window.spacedeck.active_space_artifacts[index];
-            if(!callback || callback(artifact)) {
-                result.push(artifact)
-            };
-        }
-        return result;
+        callback = callback || function(artifact) { return true };
+        return window.spacedeck.active_space_artifacts.filter(artifact => callback(artifact));
     }
 
     decorateArtifacts(decoratorCallback, keyCallback) {

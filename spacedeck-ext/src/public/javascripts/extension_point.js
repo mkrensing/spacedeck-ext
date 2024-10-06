@@ -162,7 +162,12 @@ class SpacedeckModule {
 
     ready(callback) {
         let scripts = this.getAllScripts();
-        spacedeckExtensionPoint.getScripts(this.getAllScripts(), callback);
+        if(scripts.length > 0) {
+            spacedeckExtensionPoint.getScripts(scripts, callback);
+        } else {
+            callback();            
+        }
+        
     }
 
     use(moduleName) {

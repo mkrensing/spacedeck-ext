@@ -25,7 +25,12 @@ class Template {
         data.converter = {};
         data.converter.isoDate = function() {
             return function(text, render) {
-                return new Date(render(text)).toISOString().substring(0, 10);
+                try {
+                    return new Date(render(text)).toISOString().substring(0, 10);
+                } catch(e) {
+                    return "";
+                }
+                
             }
         }
 

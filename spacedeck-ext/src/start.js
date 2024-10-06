@@ -10,6 +10,8 @@ var spacedeck_home = "/app";
 var spacedeck_ext_home = "/spacedeck-ext";
 var spacedeck_public_folder = spacedeck_home + "/public";
 var spacedeck_views_folder = spacedeck_home + "/views";
+var spacedeck_routes_folder = spacedeck_home + "/routes";
+
 // Bugfix in Spacedeck. Dort wrid anstelel von "catch" auch "error" genutzt
 (function(Promise) {
 
@@ -30,13 +32,25 @@ process.env.NODE_CONFIG_DIR = spacedeck_home + "/config"
 
 fs.copyFile(__dirname + "/public/javascripts/extension_point.js", spacedeck_public_folder + "/javascripts/extension_point.js", (err)  => {
   if(err) throw err;
-  console.log("Extension-Point installed!");
+  console.log("Extension-Point [extension_point.js] installed!");
 });
 
 fs.copyFile(__dirname + "/views/spacedeck.ejs", spacedeck_views_folder + "/spacedeck.ejs", (err)  => {
     if(err) throw err;
-    console.log("Extension-Point installed!");
+    console.log("Extension-Point [spacedeck.ejs] installed!");
   });
+
+fs.copyFile(__dirname + "/routes/proxy.js", spacedeck_routes_folder + "/proxy.js", (err)  => {
+    if(err) throw err;
+    console.log("Extension-Point [proxy.js] installed!");
+});  
+
+fs.readFile(spacedeck_home + "/spacedeck.js", "utf-8", (err, data) => {
+    const searchPattern = "app.use('/', require('./routes/root'));"
+    const replacedText = "app.use('/', require('./routes/root'));\napp.use('/proxy', require('./routes/proxy.js'));"
+    const content = data.replace(searchPattern, replacedText);
+    fs.writeFile(spacedeck_home + "/spacedeck.js", content, "utf-8");
+});
 
 module.paths.push(spacedeck_home);
 process.chdir(spacedeck_home);
