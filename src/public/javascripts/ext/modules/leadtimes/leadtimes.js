@@ -13,8 +13,6 @@ spacedeck.loadStylesheets("spacedeck.css");
 
 leadtimes.ready(function() {
  
-    console.log("leadtimes.js ready")
-
     let config = constructConfigParser({}).parse();       
     console.log("Leadtimes loaded", config);
     let spacedeckAdapter = constructSpacedeckAdapter();
@@ -66,10 +64,8 @@ leadtimes.ready(function() {
  
         let artifacts = spacedeckAdapter.findArtifacts(artifact => findJiraArtifacts(artifact));
         let keys = artifacts.map(artifact => extractJiraKey(artifact)).sort((a,b) => a.localeCompare(b));
-        
-        console.log("keys", keys);
-
         let client = constructProxyClient();
+
         client.getJson(config.jiraUrl, { "keys": keys.join(","), "startState": config.jiraStartState}).then(result => {
             updateArtifacts(artifacts, result);
         }).catch(error => {
