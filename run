@@ -19,4 +19,4 @@ docker run -dit -p 9666:9666 \
         -v $SPACEDECK_EXT_HOME/src/public/stylesheets/ext:/app/public/stylesheets/ext \
         --name=spacedeck \
         -e TZ=Europe/Amsterdam \
-         spacedeck-jira
+         spacedeck-ext

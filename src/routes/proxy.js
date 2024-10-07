@@ -82,8 +82,8 @@ function proxyRequest(req, res) {
 
       proxyReq.on('error', err => {
           console.error('Proxy error:', err);
-          res.writeHead(500, { 'Content-Type': 'text/plain' });
-          res.end('Internal Server Error');
+          res.writeHead(502, { 'Content-Type': 'text/plain' });
+          res.end("" + err);
       });
 
       // Request beenden

@@ -1,6 +1,7 @@
 let leadtimes = constructSpacedeckModule("leadtimes");
 leadtimes.requires("databinding.js");
 leadtimes.requires("rest_client.js");
+leadtimes.requires("proxy_client.js");
 leadtimes.loadStylesheets("leadtimes.css");
 let spacedeck = leadtimes.use("spacedeck");
 spacedeck.requires("spacedeck_adapter.js");
@@ -9,9 +10,11 @@ spacedeck.requires("view/mustache.js");
 spacedeck.requires("util/config_parser.js");
 spacedeck.loadStylesheets("spacedeck.css");
  
-console.log("in leadtime module")
+
 leadtimes.ready(function() {
  
+    console.log("leadtimes.js ready")
+
     let config = constructConfigParser({}).parse();       
     console.log("Leadtimes loaded", config);
     let spacedeckAdapter = constructSpacedeckAdapter();
@@ -63,11 +66,14 @@ leadtimes.ready(function() {
  
         let artifacts = spacedeckAdapter.findArtifacts(artifact => findJiraArtifacts(artifact));
         let keys = artifacts.map(artifact => extractJiraKey(artifact)).sort((a,b) => a.localeCompare(b));
- 
-        let client = constructRestClient();
-        client.getJson(config.jiraUrl, { "keys": keys.join(","), "startState": config.jiraStartState}, { "x-target-host": config.jiraServer}).then(result => {
- 
+        
+        console.log("keys", keys);
+
+        let client = constructProxyClient();
+        client.getJson(config.jiraUrl, { "keys": keys.join(","), "startState": config.jiraStartState}).then(result => {
             updateArtifacts(artifacts, result);
+        }).catch(error => {
+            console.error("Error in leadtimes.js", error);
         });
  
         let updateButton = spacedeckAdapter.findArtifactByText(config.jiraUpdateButton);
@@ -83,7 +89,7 @@ leadtimes.ready(function() {
  
                 }).catch(error => {
                     spacedeckAdapter.loadingStop();
-                    throw error;
+                    console.error("Error in leadtimes.js", error);
                 });
             });
         }

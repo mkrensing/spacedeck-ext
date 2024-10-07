@@ -1,16 +1,17 @@
 class RestClient {
 
-    getJson(url, parameters, headers) {
+    getJson(urlTemplate, parameters, headers) {
         return new Promise((resolve, reject) => {
             let args = { method: 'GET', 
                 headers: 
                    { 'Content-Type': 'application/json', ...(headers || {}) }
                };            
-            fetch(this.extendUrl(url, parameters), args).then(response => {
+            fetch(this.resolveUrlTemplate(urlTemplate, parameters), args).then(response => {
                 if (!response.ok) {
-                    throw new Error('client.get failed for url ' + url + '. response: ' + response.text);
+                    return createErrorPromise(urlTemplate, response);
+                } else {
+                    return response.json(); 
                 }
-                return response.json(); 
             })
             .then(data => {
                 resolve(data);
@@ -21,18 +22,19 @@ class RestClient {
         })
     }
 
-    postJson(url, parameters, body, headers) {
+    postJson(urlTemplate, parameters, body, headers) {
         return new Promise((resolve, reject) => {
             let args = { method: 'POST', 
                          headers: 
                             { 'Content-Type': 'application/json', ...(headers || {}) },
                          body: JSON.stringify(body || {})
                         };
-            fetch(this.extendUrl(url, parameters), args).then(response => {
+            fetch(this.resolveUrlTemplate(urlTemplate, parameters), args).then(response => {
                 if (!response.ok) {
-                    throw new Error('client.get failed for url ' + url + '. response: ' + response.text);
+                    return createErrorPromise(urlTemplate, response);
+                } else {
+                    return response.json(); 
                 }
-                return response.json(); 
             })
             .then(data => {
                 resolve(data);
@@ -43,13 +45,27 @@ class RestClient {
         })
     }
 
-    extendUrl(url, params) {
-        url = this.replaceUrlPlaceholders(url, params);
+    resolveUrlTemplate(originalUrl, originalParams) {
+        const { url, params } = this.replaceUrlPlaceholders(originalUrl, originalParams);
         return this.addParameters(url, params);
     }
 
     replaceUrlPlaceholders(url, params) {
-        return url.replace(/{(\w+)}/g, (match, key) => params[key] || match);
+        const usedKeys = new Set(); // Set zum Speichern der verwendeten Parameter
+        const updatedParams = { ...params }; // Kopiere params, um es nicht zu manipulieren
+    
+        const resultUrl = url.replace(/{(\w+)}/g, (match, key) => {
+            if (params[key]) {
+                usedKeys.add(key); // Speichere den ersetzten Parameter
+                return params[key]; // Ersetze Platzhalter
+            }
+            return match; // Behalte den Platzhalter, falls kein Wert vorhanden ist
+        });
+    
+        // Entferne alle verwendeten Parameter aus updatedParams
+        usedKeys.forEach(key => delete updatedParams[key]);
+    
+        return { url: resultUrl, params: updatedParams };
     }
 
     addParameters(url, paramsObj) {
@@ -68,6 +84,21 @@ class RestClient {
     }
     
 }
+
+function createErrorPromise(urlTemplate, response) {
+    return new Promise((resolve, reject) => {
+        return response.text().then(text => {
+            reject({ error: {
+                    urlTemplate: urlTemplate,
+                    url: response.url,
+                    status: response.status,
+                    text: text
+                }
+            });                        
+        });
+    });
+}
+
 
 
 function constructRestClient() {

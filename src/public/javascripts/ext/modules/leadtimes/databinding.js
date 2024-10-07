@@ -94,9 +94,10 @@ class IssueDetailBinding {
 
 class JiraArtifactDataBinding {
 
-    constructor(issueMarker, issueDetail) {
+    constructor(issueMarker, issueDetail, config) {
         this.issueMarker = issueMarker;
         this.issueDetail = issueDetail;
+        this.config = config;
     }
 
     update(artifact) {
@@ -110,6 +111,11 @@ class JiraArtifactDataBinding {
                 issueDetailBinding.update();
                 issueDetailBinding.show();
             });
+        } else {
+            issueMarkerBinding.onClick(function(artifact) {
+                let key = artifact.tags.jira.key;
+                window.open(_this.config.jiraBrowseUrl + key, "_jira_details");
+            });
         }
         
         issueMarkerBinding.update();
@@ -117,6 +123,6 @@ class JiraArtifactDataBinding {
     }
 }
 
-function constructJiraArtifactDataBinding(issueMarker, issueDetail) {
-    return new JiraArtifactDataBinding(issueMarker, issueDetail);
+function constructJiraArtifactDataBinding(issueMarker, issueDetail, config) {
+    return new JiraArtifactDataBinding(issueMarker, issueDetail, config);
 }

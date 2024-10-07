@@ -2,4 +2,4 @@
 SPACEDECK_EXT_HOME=$(pwd)
 SPACEDECK_OPEN_HOME=$SPACEDECK_EXT_HOME/../spacedeck-open
 docker build -t spacedeck-open $SPACEDECK_OPEN_HOME
-docker build --no-cache -t spacedeck-jira $SPACEDECK_EXT_HOME
+docker build --no-cache -t spacedeck-ext $SPACEDECK_EXT_HOME

@@ -10,14 +10,14 @@ class ConfigParser {
 
         let _this=this;
         let boardConfigArtifact = constructSpacedeckAdapter().findFirstMatchingArtifact(function(artifact) {
-            return getArtifactiDescription(artifact).startsWith(_this.boardConfigDescriptionPrefix);
+            return getArtifactDescription(artifact).startsWith(_this.boardConfigDescriptionPrefix);
         })
 
         if(!boardConfigArtifact) {
             return {};
         }
 
-        let boardConfig = getArtifactiDescription(boardConfigArtifact);
+        let boardConfig = getArtifactDescription(boardConfigArtifact);
         boardConfig = boardConfig.replace(_this.boardConfigDescriptionPrefix, "").replaceAll("'", "\"");
 
         return JSON.parse(boardConfig);
